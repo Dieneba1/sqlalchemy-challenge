@@ -28,6 +28,16 @@ app = Flask(__name__)
 #################################################
 # Flask Routes
 #################################################
+# welcome
+@app.route('/')
+def welcome():
+    return(
+        f"Weclome!<br/>"
+        f"Available Routes:<br/>"
+        f"/api/v1.0/precipitation<br/>"
+        f"/api/v1.0/stations<br/>"
+        f"/api/v1.0/tobs<br/>"
+          )
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
@@ -42,8 +52,22 @@ def precipitation():
 def welcome():
     return (
       
-        "Available Routes:<br/> api/v1.0/precipitation"
-       
-    )
+        "Available Routes:<br/> api/v1.0/precipitation")
+
+@app.route("/api/v1.0/stations")
+def stations():
+    number_of_stations=session.query(stations.station).all()
+    stations_list=session.query(measurement.station, func.count(measurement.station)).group_by(measurement.station).order_by(func.count(measurement.station).desc()).all()
+    return jsonify(stations_list)
+
+@app.route("/api/v1.0/tobs")
+def tobs ():
+    stations_list=session.query(measurement.station, func.count(measurement.station)).group_by(measurement.station).order_by(func.count(measurement.station).desc()).all()
+
+@app.route("/api/v1.0/<start>")
+def start_end():
+    min_max_avg=session.query(func.min(measurement.tobs),func.max(measurement.tobs),func.avg(measurement.tobs)).filter(measurement.station=='USC00519281').all()
 
 
+
+    session.close()
